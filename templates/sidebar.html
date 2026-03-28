@@ -1,0 +1,31 @@
+<aside class="sidebar">
+  <div class="sidebar-section">
+    <div class="sidebar-label">Navigation</div>
+    <a href="{% url 'dashboard' %}" class="sidebar-link {% block sb_dash %}{% endblock %}">
+      <span class="sidebar-icon">⊞</span> Dashboard
+    </a>
+    <a href="{% url 'hotspot_dashboard' %}" class="sidebar-link {% block sb_hot %}{% endblock %}">
+      <span class="sidebar-icon">🗺</span> Crime Hotspots
+    </a>
+    <a href="{% url 'forecast_dashboard' %}" class="sidebar-link {% block sb_fore %}{% endblock %}">
+      <span class="sidebar-icon">📈</span> Forecast Trends
+    </a>
+    <a href="{% url 'classifier_dashboard' %}" class="sidebar-link {% block sb_nlp %}{% endblock %}">
+      <span class="sidebar-icon">🧠</span> NLP Classifier
+    </a>
+    <a href="{% url 'route_dashboard' %}" class="sidebar-link {% block sb_route %}{% endblock %}">
+      <span class="sidebar-icon">🧭</span> Safe Route
+    </a>
+  </div>
+  <hr class="sidebar-divider">
+  <div style="flex:1;"></div>
+  <div class="sidebar-section" style="margin-top:12px;">
+    <div style="background:rgba(0,212,255,.05);border:1px solid rgba(0,212,255,.1);border-radius:10px;padding:14px;">
+      <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);margin-bottom:6px;font-weight:700;">System Status</div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:.8rem;color:var(--success);font-weight:600;">
+        <span style="width:7px;height:7px;border-radius:50%;background:var(--success);display:inline-block;"></span>
+        All Systems Operational
+      </div>
+    </div>
+  </div>
+</aside>

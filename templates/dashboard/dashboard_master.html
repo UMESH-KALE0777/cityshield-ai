@@ -1,0 +1,215 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dashboard — Urban Safety AI</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Syne:wght@700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <style>
+    .live-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); display: inline-block; animation: ping 1.5s ease-out infinite; }
+    .ticker { display: flex; align-items: center; gap: 8px; font-family: var(--font-mono); font-size: .75rem; color: var(--text-muted); overflow: hidden; }
+    .ticker-inner { display: flex; gap: 32px; animation: ticker-scroll 30s linear infinite; white-space: nowrap; }
+    @keyframes ticker-scroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+    .ticker-item { color: var(--text-secondary); }
+    .ticker-item .lbl { color: var(--text-muted); }
+    .ticker-item.alert-item { color: var(--danger); }
+    .map-dash { height: 320px; border-radius: 12px; overflow: hidden; border: 1px solid var(--border); }
+    .incident-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+    .incident-row:last-child { border-bottom: none; }
+    .incident-type { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: .85rem; flex-shrink: 0; }
+    .incident-info { flex: 1; min-width: 0; }
+    .incident-title { font-size: .85rem; font-weight: 600; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .incident-meta { font-size: .72rem; color: var(--text-muted); font-family: var(--font-mono); margin-top: 2px; }
+    .heatzone { position: absolute; border-radius: 50%; filter: blur(30px); pointer-events: none; }
+    .top-stats { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; margin-bottom: 24px; }
+    @media(max-width:900px) { .top-stats { grid-template-columns: repeat(2,1fr); } }
+    .bottom-grid { display: grid; grid-template-columns: 1fr 1.6fr 1fr; gap: 16px; }
+    @media(max-width:1100px) { .bottom-grid { grid-template-columns: 1fr 1fr; } }
+    @media(max-width:700px) { .bottom-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  {% include 'navbar.html' %}
+  <div class="app-shell">
+    {% include 'sidebar.html' %}
+    <div class="main-area">
+
+      <!-- Ticker bar -->
+      <div style="background:var(--bg-secondary);border-bottom:1px solid var(--border);padding:8px 20px;display:flex;align-items:center;gap:16px;flex-shrink:0;">
+        <div style="display:flex;align-items:center;gap:6px;font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);white-space:nowrap;flex-shrink:0;">
+          <span class="live-dot"></span> LIVE FEED
+        </div>
+        <div class="ticker">
+          <div class="ticker-inner">
+            <span class="ticker-item alert-item">🚨 HIGH ALERT — Sector 7, Zone C &nbsp;|</span>
+            <span class="ticker-item"><span class="lbl">INCIDENTS (24H):</span> 42 &nbsp;|</span>
+            <span class="ticker-item"><span class="lbl">PATROLS ACTIVE:</span> 18 &nbsp;|</span>
+            <span class="ticker-item"><span class="lbl">FORECAST:</span> MODERATE RISK TONIGHT &nbsp;|</span>
+            <span class="ticker-item alert-item">🚨 HIGH ALERT — Sector 7, Zone C &nbsp;|</span>
+            <span class="ticker-item"><span class="lbl">INCIDENTS (24H):</span> 42 &nbsp;|</span>
+            <span class="ticker-item"><span class="lbl">PATROLS ACTIVE:</span> 18 &nbsp;|</span>
+            <span class="ticker-item"><span class="lbl">FORECAST:</span> MODERATE RISK TONIGHT</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="page-content">
+
+        <!-- Top Stats -->
+        <div class="top-stats animate-in">
+          <div class="stat-card danger">
+            <div class="stat-label">Active Incidents</div>
+            <div class="stat-value">42</div>
+            <div class="stat-trend up">↑ 12% vs yesterday</div>
+            <div class="stat-icon">🚨</div>
+          </div>
+          <div class="stat-card warning">
+            <div class="stat-label">High-Risk Zones</div>
+            <div class="stat-value">7</div>
+            <div class="stat-trend up">↑ 2 new zones flagged</div>
+            <div class="stat-icon">📍</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Patrols Active</div>
+            <div class="stat-value">18</div>
+            <div class="stat-trend down">↓ Fully deployed</div>
+            <div class="stat-icon">👮</div>
+          </div>
+          <div class="stat-card success">
+            <div class="stat-label">Response Rate</div>
+            <div class="stat-value">94%</div>
+            <div class="stat-trend down">↑ 3% improvement</div>
+            <div class="stat-icon">✅</div>
+          </div>
+        </div>
+
+        <!-- Bottom Grid -->
+        <div class="bottom-grid">
+
+          <!-- Recent Incidents -->
+          <div class="card animate-in stagger-1" style="display:flex;flex-direction:column;">
+            <div class="card-header">
+              <h3><i class="fas fa-list-ul" style="color:var(--accent);font-size:.8rem;"></i> Recent Incidents</h3>
+              <span class="badge badge-danger badge-dot">Live</span>
+            </div>
+            <div class="card-body" style="flex:1;overflow-y:auto;padding:12px 16px;">
+              <div class="incident-row">
+                <div class="incident-type" style="background:rgba(255,59,59,.1);">🔴</div>
+                <div class="incident-info">
+                  <div class="incident-title">Theft — MG Road</div>
+                  <div class="incident-meta">2 mins ago · PCR-04</div>
+                </div>
+                <span class="badge badge-danger" style="font-size:.6rem;">HIGH</span>
+              </div>
+              <div class="incident-row">
+                <div class="incident-type" style="background:rgba(245,158,11,.1);">🟡</div>
+                <div class="incident-info">
+                  <div class="incident-title">Assault — Silk Board</div>
+                  <div class="incident-meta">14 mins ago · PCR-11</div>
+                </div>
+                <span class="badge badge-warning" style="font-size:.6rem;">MED</span>
+              </div>
+              <div class="incident-row">
+                <div class="incident-type" style="background:rgba(255,59,59,.1);">🔴</div>
+                <div class="incident-info">
+                  <div class="incident-title">Robbery — Koramangala</div>
+                  <div class="incident-meta">29 mins ago · PCR-07</div>
+                </div>
+                <span class="badge badge-danger" style="font-size:.6rem;">HIGH</span>
+              </div>
+              <div class="incident-row">
+                <div class="incident-type" style="background:rgba(16,185,129,.1);">🟢</div>
+                <div class="incident-info">
+                  <div class="incident-title">Vandalism — Indiranagar</div>
+                  <div class="incident-meta">47 mins ago · PCR-03</div>
+                </div>
+                <span class="badge badge-success" style="font-size:.6rem;">LOW</span>
+              </div>
+              <div class="incident-row">
+                <div class="incident-type" style="background:rgba(245,158,11,.1);">🟡</div>
+                <div class="incident-info">
+                  <div class="incident-title">Harassment — HSR Layout</div>
+                  <div class="incident-meta">1 hr ago · PCR-09</div>
+                </div>
+                <span class="badge badge-warning" style="font-size:.6rem;">MED</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Live Map -->
+          <div class="card animate-in stagger-2" style="display:flex;flex-direction:column;overflow:hidden;">
+            <div class="card-header">
+              <h3><i class="fas fa-map" style="color:var(--accent);font-size:.8rem;"></i> Live Incident Map</h3>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <span style="font-size:.75rem;color:var(--text-muted);font-family:var(--font-mono);">Bengaluru</span>
+                <span class="badge badge-info badge-dot">Active</span>
+              </div>
+            </div>
+            <div style="flex:1;min-height:280px;position:relative;">
+              <div id="dashMap" style="position:absolute;inset:0;"></div>
+            </div>
+          </div>
+
+          <!-- Zone Risk + Chart -->
+          <div style="display:flex;flex-direction:column;gap:16px;">
+            <div class="card animate-in stagger-3">
+              <div class="card-header"><h3><i class="fas fa-fire" style="color:var(--danger);font-size:.8rem;"></i> Zone Risk</h3></div>
+              <div class="card-body" style="padding:12px 16px;">
+                <div class="zone-item high">
+                  <div class="zone-name">Sector 17, Rohini</div>
+                  <div class="zone-meta">Peak: 23:30–01:00 · Score: 89</div>
+                </div>
+                <div class="zone-item medium">
+                  <div class="zone-name">Hauz Khas Village</div>
+                  <div class="zone-meta">Peak: 21:00–03:00 · Score: 67</div>
+                </div>
+                <div class="zone-item low">
+                  <div class="zone-name">Indiranagar, BLR</div>
+                  <div class="zone-meta">Peak: 22:00–00:00 · Score: 31</div>
+                </div>
+              </div>
+            </div>
+            <div class="card animate-in stagger-4">
+              <div class="card-header"><h3><i class="fas fa-chart-bar" style="color:var(--accent);font-size:.8rem;"></i> 7-Day Trend</h3></div>
+              <div class="card-body" style="padding:16px;">
+                <canvas id="trendChart" height="130"></canvas>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Map
+    var map = L.map('dashMap', { zoomControl: false, attributionControl: false }).setView([12.9716, 77.5946], 12);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { subdomains: 'abcd', maxZoom: 20 }).addTo(map);
+    L.control.zoom({ position: 'bottomright' }).addTo(map);
+    var pts = [[12.9716,77.5946],[12.9616,77.6046],[12.9416,77.6246],[12.9816,77.5646],[12.9516,77.5846]];
+    var cols = ['#ff3b3b','#f59e0b','#ff3b3b','#10b981','#f59e0b'];
+    pts.forEach(function(p, i) {
+      var icon = L.divIcon({ className:'', html:"<div style='width:12px;height:12px;border-radius:50%;background:"+cols[i]+";border:2px solid rgba(255,255,255,.6);box-shadow:0 0 8px "+cols[i]+"'></div>", iconSize:[12,12], iconAnchor:[6,6] });
+      L.marker(p, { icon: icon }).addTo(map);
+    });
+
+    // Chart
+    var ctx = document.getElementById('trendChart');
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
+        datasets: [{ label: 'Incidents', data: [28,35,22,40,31,48,42], backgroundColor: 'rgba(0,212,255,.25)', borderColor: 'rgba(0,212,255,.8)', borderWidth: 2, borderRadius: 4 }]
+      },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { ticks: { color: '#4b5563', font: { size: 10 } }, grid: { color: '#1a2d42' } }, y: { ticks: { color: '#4b5563', font: { size: 10 } }, grid: { color: '#1a2d42' } } } }
+    });
+  </script>
+</body>
+</html>

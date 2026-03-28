@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="p-6 space-y-6">
+
+  <div class="flex items-center justify-between">
+    <h1 class="text-2xl font-semibold text-gray-800">Crime Forecast</h1>
+    <span class="text-sm text-gray-500">Based on {{ record_count }} records</span>
+  </div>
+
+  <!-- Top row: bar chart -->
+  <div class="bg-white rounded-xl shadow p-6">
+    <h2 class="text-base font-semibold text-gray-700 mb-4">
+      Historical vs Predicted — Top 10 Areas
+    </h2>
+    <canvas id="barChart" height="100"></canvas>
+  </div>
+
+  <!-- Bottom row: trend + type side by side -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div class="bg-white rounded-xl shadow p-6">
+      <h2 class="text-base font-semibold text-gray-700 mb-4">Monthly trend</h2>
+      <canvas id="trendChart" height="160"></canvas>
+    </div>
+    <div class="bg-white rounded-xl shadow p-6">
+      <h2 class="text-base font-semibold text-gray-700 mb-4">By crime type</h2>
+      <canvas id="typeChart" height="160"></canvas>
+    </div>
+  </div>
+
+  <!-- Data table -->
+  {% if forecast_data %}
+  <div class="bg-white rounded-xl shadow overflow-hidden">
+    <table class="w-full text-sm">
+      <thead class="bg-gray-50 text-gray-600">
+        <tr>
+          <th class="px-6 py-3 text-left">Area</th>
+          <th class="px-6 py-3 text-right">Historical</th>
+          <th class="px-6 py-3 text-right">Predicted</th>
+          <th class="px-6 py-3 text-right">Share %</th>
+          <th class="px-6 py-3 text-left">Risk bar</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-100">
+        {% for item in forecast_data %}
+        <tr class="hover:bg-gray-50">
+          <td class="px-6 py-3 font-medium text-gray-800">{{ item.area }}</td>
+          <td class="px-6 py-3 text-right text-gray-600">{{ item.historical }}</td>
+          <td class="px-6 py-3 text-right font-semibold text-red-600">{{ item.predicted }}</td>
+          <td class="px-6 py-3 text-right text-gray-500">{{ item.percentage }}%</td>
+          <td class="px-6 py-3">
+            <div class="w-full bg-gray-100 rounded-full h-2">
+              <div class="bg-red-400 h-2 rounded-full"
+                   style="width: {{ item.percentage }}%"></div>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+const barLabels     = {{ bar_labels|safe }};
+const barHistorical = {{ bar_historical|safe }};
+const barPredicted  = {{ bar_predicted|safe }};
+const trendLabels   = {{ trend_labels|safe }};
+const trendValues   = {{ trend_values|safe }};
+const typeLabels    = {{ type_labels|safe }};
+const typeValues    = {{ type_values|safe }};
+
+new Chart(document.getElementById('barChart'), {
+  type: 'bar',
+  data: {
+    labels: barLabels,
+    datasets: [
+      {
+        label: 'Historical',
+        data: barHistorical,
+        backgroundColor: 'rgba(99,102,241,0.6)',
+        borderRadius: 4,
+      },
+      {
+        label: 'Predicted (+10%)',
+        data: barPredicted,
+        backgroundColor: 'rgba(239,68,68,0.6)',
+        borderRadius: 4,
+      },
+    ],
+  },
+  options: { responsive: true, plugins: { legend: { position: 'top' } } },
+});
+
+new Chart(document.getElementById('trendChart'), {
+  type: 'line',
+  data: {
+    labels: trendLabels.length ? trendLabels : ['No data'],
+    datasets: [{
+      label: 'Crimes/month',
+      data: trendValues.length ? trendValues : [0],
+      borderColor: 'rgb(239,68,68)',
+      backgroundColor: 'rgba(239,68,68,0.1)',
+      tension: 0.3,
+      fill: true,
+    }],
+  },
+  options: { responsive: true, plugins: { legend: { display: false } } },
+});
+
+const palette = [
+  '#6366f1','#ef4444','#f97316','#22c55e','#14b8a6','#8b5cf6','#f59e0b'
+];
+new Chart(document.getElementById('typeChart'), {
+  type: 'doughnut',
+  data: {
+    labels: typeLabels.length ? typeLabels : ['No data'],
+    datasets: [{
+      data: typeValues.length ? typeValues : [1],
+      backgroundColor: palette,
+    }],
+  },
+  options: { responsive: true, plugins: { legend: { position: 'right' } } },
+});
+</script>
+{% endblock %}

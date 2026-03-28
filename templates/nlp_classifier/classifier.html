@@ -1,0 +1,297 @@
+{% load static %}
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SafeCity Intelligence — FIR Classifier</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Manrope:wght@200;300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "secondary-container": "#03b5d3",
+              "on-tertiary-fixed": "#351000",
+              "on-secondary": "#003640",
+              "error-container": "#93000a",
+              "on-surface-variant": "#c7c4d8",
+              "on-background": "#dae2fd",
+              "secondary-fixed": "#acedff",
+              "secondary": "#4cd7f6",
+              "tertiary-container": "#a44100",
+              "primary-fixed": "#e2dfff",
+              "on-error-container": "#ffdad6",
+              "surface-container-high": "#222a3d",
+              "primary-fixed-dim": "#c3c0ff",
+              "error": "#ffb4ab",
+              "on-tertiary-fixed-variant": "#7b2f00",
+              "on-primary": "#1d00a5",
+              "tertiary": "#ffb695",
+              "surface-container-highest": "#2d3449",
+              "secondary-fixed-dim": "#4cd7f6",
+              "surface": "#0b1326",
+              "on-secondary-fixed-variant": "#004e5c",
+              "inverse-on-surface": "#283044",
+              "on-secondary-fixed": "#001f26",
+              "surface-variant": "#2d3449",
+              "inverse-surface": "#dae2fd",
+              "on-primary-fixed": "#0f0069",
+              "on-tertiary-container": "#ffd2be",
+              "on-surface": "#dae2fd",
+              "outline-variant": "#464555",
+              "on-primary-fixed-variant": "#3323cc",
+              "on-primary-container": "#dad7ff",
+              "on-secondary-container": "#00424e",
+              "outline": "#918fa1",
+              "inverse-primary": "#4d44e3",
+              "surface-container-low": "#131b2e",
+              "tertiary-fixed-dim": "#ffb695",
+              "on-tertiary": "#571f00",
+              "tertiary-fixed": "#ffdbcc",
+              "surface-tint": "#c3c0ff",
+              "surface-container-lowest": "#060e20",
+              "surface-bright": "#31394d",
+              "primary-container": "#4f46e5",
+              "on-error": "#690005",
+              "surface-container": "#171f33",
+              "primary": "#c3c0ff",
+              "surface-dim": "#0b1326",
+              "background": "#0b1326"
+            },
+            fontFamily: {
+              "headline": ["Space Grotesk"],
+              "body": ["Manrope"],
+              "label": ["Manrope"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      .glass-panel {
+        background: rgba(49, 57, 77, 0.6);
+        backdrop-filter: blur(20px);
+      }
+      .pulse-ring {
+        animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+      }
+      @keyframes pulse-ring {
+        0% { transform: scale(0.95); opacity: 0.5; }
+        50% { transform: scale(1); opacity: 0.2; }
+        100% { transform: scale(0.95); opacity: 0.5; }
+      }
+    </style>
+</head>
+<body class="bg-surface text-on-background font-body selection:bg-primary/30">
+<!-- Shared SideNavBar Component -->
+<aside class="fixed left-0 top-0 h-full w-64 bg-slate-950 dark:bg-[#0b1326] flex flex-col z-40 shadow-2xl shadow-indigo-900/10">
+<div class="p-8">
+<h1 class="text-xl font-black tracking-tighter text-indigo-400 dark:text-[#c3c0ff] font-headline uppercase">Sentinel One</h1>
+<p class="font-['Space_Grotesk'] tracking-wider uppercase text-[10px] font-bold text-slate-500 mt-1">Active Surveillance</p>
+</div>
+<nav class="flex-1 px-4 space-y-2">
+<a class="flex items-center gap-3 px-6 py-4 text-slate-400 hover:text-slate-100 hover:bg-[#131b2e] transition-colors duration-200" href="{% url 'dashboard' %}">
+<span class="material-symbols-outlined text-xl">dashboard</span>
+<span class="font-['Space_Grotesk'] tracking-wider uppercase text-[10px] font-bold">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-6 py-4 text-slate-400 hover:text-slate-100 hover:bg-[#131b2e] transition-colors duration-200" href="{% url 'hotspot_dashboard' %}">
+<span class="material-symbols-outlined text-xl">map</span>
+<span class="font-['Space_Grotesk'] tracking-wider uppercase text-[10px] font-bold">Crime Hotspot</span>
+</a>
+<a class="flex items-center gap-3 px-6 py-4 text-slate-400 hover:text-slate-100 hover:bg-[#131b2e] transition-colors duration-200" href="{% url 'forecast_dashboard' %}">
+<span class="material-symbols-outlined text-xl">analytics</span>
+<span class="font-['Space_Grotesk'] tracking-wider uppercase text-[10px] font-bold">Crime Forecast</span>
+</a>
+<!-- Active State -->
+<a class="flex items-center gap-3 px-6 py-4 bg-[#171f33] text-[#4cd7f6] border-r-2 border-[#4cd7f6] transition-transform active:scale-[0.98]" href="{% url 'classifier_dashboard' %}">
+<span class="material-symbols-outlined text-xl">description</span>
+<span class="font-['Space_Grotesk'] tracking-wider uppercase text-[10px] font-bold">FIR Classifier</span>
+</a>
+<a class="flex items-center gap-3 px-6 py-4 text-slate-400 hover:text-slate-100 hover:bg-[#131b2e] transition-colors duration-200" href="{% url 'route_dashboard' %}">
+<span class="material-symbols-outlined text-xl">route</span>
+<span class="font-['Space_Grotesk'] tracking-wider uppercase text-[10px] font-bold">Safe Route</span>
+</a>
+<a class="flex items-center gap-3 px-6 py-4 text-slate-400 hover:text-slate-100 hover:bg-[#131b2e] transition-colors duration-200" href="{% url 'report_crime' %}">
+<span class="material-symbols-outlined text-xl">report</span>
+<span class="font-['Space_Grotesk'] tracking-wider uppercase text-[10px] font-bold">Report Crime</span>
+</a>
+</nav>
+<div class="p-6 mt-auto">
+<div class="flex items-center gap-3 px-6 py-4 text-slate-400">
+<img alt="User intelligence profile" class="w-8 h-8 rounded-full ring-2 ring-indigo-500/20" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBTWIqyvpZjhgLORxIVQ_TzPIO3Pzrast93qe--T_cLAbBUpTaH6SOnLwb5QcXLSXuav9ztE5B-k_FNNMxkbd_WoaPUGEoi2-YSuES9i4Ja_XwEP54XtrrEs_JyUZvjWNaEG05eN4xmISsd_E8iAQchjxSynSr0AyylE_911gFCTkMQ_ZulHfdT__S-AyN0PeWvzalV3ZocOcKxNqWRScKIBZjhQD9I067tR1P4DlnxvRjitZHtKPlryt4CEBqWU0Xw7hU1GAhnfvM"/>
+<div class="flex flex-col">
+<span class="font-['Space_Grotesk'] tracking-wider uppercase text-[10px] font-bold">{{ user.username }}</span>
+<span class="text-[9px] text-slate-500">Agent Profile</span>
+</div>
+</div>
+</div>
+</aside>
+<!-- Top Navigation -->
+<header class="fixed top-0 right-0 w-[calc(100%-16rem)] z-40 bg-[#0b1326]/60 backdrop-blur-xl border-b border-[#464555]/10 flex justify-between items-center h-16 px-8 ml-64">
+<div class="flex items-center gap-6">
+<span class="text-lg font-black text-indigo-400 font-headline uppercase tracking-tight">SafeCity Intelligence</span>
+<div class="h-4 w-px bg-outline-variant/30"></div>
+<nav class="flex gap-6">
+<span class="text-slate-400 text-sm font-medium">City: Delhi</span>
+<span class="text-slate-400 text-sm font-medium">District: Central</span>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<button class="w-10 h-10 flex items-center justify-center rounded-full text-slate-400 hover:text-indigo-300 transition-opacity">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-full text-slate-400 hover:text-indigo-300 transition-opacity">
+<span class="material-symbols-outlined">help_outline</span>
+</button>
+</div>
+</header>
+<!-- Main Content Area -->
+<main class="ml-64 pt-24 px-10 pb-16 min-h-screen">
+<!-- Header Section -->
+<div class="mb-10 flex flex-col gap-2">
+<nav class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-outline">
+<a class="hover:text-primary transition-colors" href="{% url 'dashboard' %}">Home</a>
+<span class="material-symbols-outlined text-[12px]">chevron_right</span>
+<a class="hover:text-primary transition-colors" href="#">Tools</a>
+<span class="material-symbols-outlined text-[12px]">chevron_right</span>
+<span class="text-secondary">FIR Classifier</span>
+</nav>
+<h1 class="text-5xl font-headline font-bold tracking-tight text-on-background">FIR AI Classifier</h1>
+</div>
+<div class="flex gap-8">
+<!-- Input Section (60%) -->
+<section class="w-[60%] flex flex-col gap-6">
+<div class="bg-surface-container rounded-xl p-8 border border-outline-variant/10 shadow-lg flex flex-col gap-6">
+<div class="flex justify-between items-center">
+<label class="font-headline text-xs font-bold uppercase tracking-[0.15em] text-primary flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">description</span>
+                            Raw Incident Narrative
+                        </label>
+<span class="text-[10px] font-bold text-outline uppercase">Limit: 2000 Words</span>
+</div>
+<form method="POST" class="relative group">
+{% csrf_token %}
+<textarea name="fir_text" required class="w-full h-80 bg-surface-container-lowest border border-outline-variant/20 rounded-xl p-6 text-on-surface placeholder:text-outline/40 focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all resize-none font-body leading-relaxed" placeholder="Paste official police statement or witness testimony here for IPC mapping...">{{ fir_text }}</textarea>
+<div class="flex items-center justify-between mt-6">
+<div class="flex gap-4">
+<button type="submit" class="flex items-center gap-2 px-6 py-3 bg-gradient-to-br from-primary-container to-primary rounded-xl text-on-primary font-bold text-sm tracking-wide shadow-[0px_12px_32_rgba(15,0,105,0.2)] hover:shadow-primary/30 transition-all active:scale-95 group">
+<span class="material-symbols-outlined group-hover:animate-spin">sync</span>
+                                Analyze &amp; Classify
+                            </button>
+<button class="flex items-center gap-2 px-6 py-3 border border-outline-variant/30 text-on-surface-variant hover:bg-surface-container-highest rounded-xl text-sm font-bold transition-colors">
+<span class="material-symbols-outlined text-sm">upload_file</span>
+                                Upload Document
+                            </button>
+</div>
+<div class="flex items-center gap-3">
+<div class="flex -space-x-2">
+<div class="w-6 h-6 rounded-full bg-secondary ring-2 ring-surface"></div>
+<div class="w-6 h-6 rounded-full bg-primary ring-2 ring-surface"></div>
+</div>
+<span class="text-[10px] font-bold text-outline uppercase tracking-wider">Models Active: BHARAT-BERT-BASE</span>
+</div>
+</div>
+</form>
+</div>
+<!-- Recent History Bento -->
+<div class="grid grid-cols-2 gap-6">
+<div class="bg-surface-container-low p-6 rounded-xl border border-outline-variant/5">
+<div class="flex justify-between mb-4">
+<span class="text-[10px] font-bold text-outline uppercase">Last Processed</span>
+<span class="text-secondary text-xs font-bold">09:12 IST</span>
+</div>
+<h4 class="font-headline font-bold text-lg mb-1">Case #88219-B</h4>
+<p class="text-xs text-on-surface-variant line-clamp-1">Illegal trespassing and damage to public property...</p>
+</div>
+<div class="bg-surface-container-low p-6 rounded-xl border border-outline-variant/5">
+<div class="flex justify-between mb-4">
+<span class="text-[10px] font-bold text-outline uppercase">Pending Review</span>
+<span class="text-error text-xs font-bold">High Priority</span>
+</div>
+<h4 class="font-headline font-bold text-lg mb-1">Case #88224-A</h4>
+<p class="text-xs text-on-surface-variant line-clamp-1">Commercial vehicle collision reporting fraud...</p>
+</div>
+</div>
+</section>
+<!-- Results Section (40%) -->
+<aside class="w-[40%]">
+<div class="glass-panel border border-outline-variant/10 rounded-xl flex flex-col h-full min-h-[600px] overflow-hidden">
+<div class="p-6 border-b border-outline-variant/10 flex justify-between items-center bg-surface-container-highest/30">
+<h3 class="font-headline font-bold tracking-tight text-secondary">Detected IPC Violations</h3>
+<span class="px-3 py-1 bg-secondary-container/20 text-secondary text-[10px] font-black rounded-full uppercase">{% if prediction %}1 Match{% else %}0 Matches{% endif %}</span>
+</div>
+<div class="flex-1 overflow-y-auto p-6 space-y-6">
+{% if prediction %}
+<!-- Prediction Result -->
+<div class="group bg-surface-container-low/50 rounded-xl p-5 border border-secondary/30 transition-all">
+<div class="flex justify-between items-start mb-4">
+<div>
+<span class="bg-secondary/10 text-secondary text-xs font-black px-3 py-1 rounded border border-secondary/20 font-headline uppercase tracking-widest">PREDICTION</span>
+<h5 class="text-sm font-bold mt-2 text-on-surface">Category: {{ prediction }}</h5>
+</div>
+<div class="text-right">
+<span class="text-[10px] font-bold text-outline uppercase">Confidence</span>
+<div class="flex items-center gap-2 mt-1">
+<div class="w-16 h-1.5 bg-surface-container-lowest rounded-full overflow-hidden">
+<div class="h-full bg-secondary" style="width: 100%"></div>
+</div>
+<span class="text-xs font-black text-secondary">High</span>
+</div>
+</div>
+</div>
+<p class="text-xs text-on-surface-variant leading-relaxed mb-4 italic">
+    The AI model has categorized this narrative under the predicted IPC section above based on the linguistic structure of the report.
+</p>
+<button class="w-full py-2 bg-outline-variant/10 hover:bg-outline-variant/20 text-on-surface text-[10px] font-bold uppercase tracking-widest rounded-lg border border-outline-variant/20 transition-all flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-sm">draw</span>
+                                Apply to FIR Draft
+                            </button>
+</div>
+{% else %}
+<div class="flex flex-col items-center justify-center h-64 text-outline/30 italic">
+    <span class="material-symbols-outlined text-4xl mb-4">rule</span>
+    <p class="text-xs uppercase tracking-widest">No Narrative Analyzed Yet</p>
+</div>
+{% endif %}
+</div>
+<!-- Analysis Summary Card -->
+<div class="p-6 bg-surface-container-highest/20 border-t border-outline-variant/10">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-secondary-container/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-secondary animate-pulse" style="font-variation-settings: 'FILL' 1;">verified_user</span>
+</div>
+<div class="flex-1">
+<h6 class="text-xs font-bold text-on-surface">Legal Compliance Verified</h6>
+<p class="text-[10px] text-on-surface-variant">Validated against latest Legal Amendments</p>
+</div>
+</div>
+</div>
+</div>
+</aside>
+</div>
+</main>
+<!-- Footer Status Bar -->
+<footer class="fixed bottom-0 right-0 w-[calc(100%-16rem)] h-10 bg-[#060e20] border-t border-outline-variant/10 flex items-center justify-between px-8 z-40">
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-2">
+<span class="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_8px_#22c55e]"></span>
+<span class="text-[10px] font-bold uppercase tracking-tighter text-outline">Secure Legal Engine v1.2</span>
+</div>
+<div class="h-3 w-px bg-outline-variant/20"></div>
+<span class="text-[10px] font-bold uppercase tracking-tighter text-outline">NLU Model: BHARAT-BERT-BASE</span>
+</div>
+<div class="flex items-center gap-4">
+<span class="text-[10px] font-bold uppercase tracking-tighter text-outline">Latency: 24ms</span>
+<span class="text-[10px] font-bold uppercase tracking-tighter text-outline text-secondary">Encryption: AES-256</span>
+</div>
+</footer>
+</body></html>

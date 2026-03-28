@@ -1,0 +1,32 @@
+# Django
+db.sqlite3
+*.log
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.env
+staticfiles/
+media/
+
+# Dataset (too large for git)
+data/
+
+# ML Models (regenerate using training scripts)
+ml_models/
+*.pkl
+*.joblib
+
+# Virtual Environment
+venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.suo
+*.user
+
+# OS
+.DS_Store
+Thumbs.db

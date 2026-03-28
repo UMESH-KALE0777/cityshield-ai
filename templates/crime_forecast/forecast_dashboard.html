@@ -1,0 +1,211 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Forecast — Urban Safety AI</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Syne:wght@700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    .forecast-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+    @media(max-width:900px) { .forecast-grid { grid-template-columns: 1fr; } }
+    .day-forecast { padding: 12px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 8px; text-align: center; transition: all .18s; cursor: pointer; }
+    .day-forecast:hover { border-color: var(--accent); background: var(--bg-hover); }
+    .day-forecast.today { border-color: var(--accent); background: rgba(0,212,255,.06); }
+    .day-name { font-size: .7rem; text-transform: uppercase; letter-spacing: .08em; color: var(--text-muted); font-weight: 700; margin-bottom: 6px; }
+    .day-risk-icon { font-size: 1.4rem; margin-bottom: 6px; }
+    .day-risk-val { font-family: var(--font-mono); font-size: 1.1rem; font-weight: 700; }
+    .day-risk-val.high { color: var(--danger); }
+    .day-risk-val.medium { color: var(--warning); }
+    .day-risk-val.low { color: var(--success); }
+    .week-strip { display: grid; grid-template-columns: repeat(7,1fr); gap: 8px; margin-bottom: 20px; }
+    .selector-bar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    select.zone-select { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 8px 14px; color: var(--text-primary); font-size: .875rem; outline: none; cursor: pointer; }
+    select.zone-select:focus { border-color: var(--accent); }
+    .insights-panel { display: flex; flex-direction: column; gap: 10px; }
+    .insight-row { display: flex; align-items: flex-start; gap: 12px; padding: 12px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 8px; }
+    .insight-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: .9rem; flex-shrink: 0; }
+    .insight-text { font-size: .8rem; color: var(--text-secondary); line-height: 1.5; }
+    .insight-text strong { color: var(--text-primary); }
+  </style>
+</head>
+<body>
+  {% include 'navbar.html' %}
+  <div class="app-shell">
+    {% include 'sidebar.html' %}
+    <div class="main-area">
+      <div class="page-header">
+        <div>
+          <h1><i class="fas fa-chart-line" style="color:var(--accent);font-size:1rem;"></i> Crime Forecast Dashboard</h1>
+          <div class="breadcrumb">DASHBOARD / FORECAST · AI-powered predictive analytics</div>
+        </div>
+        <div class="selector-bar">
+          <select class="zone-select" id="zoneSelect">
+            <option value="0">Bengaluru Central</option>
+            <option value="1">Bengaluru North</option>
+            <option value="2">Bengaluru South</option>
+            <option value="3">Bengaluru East</option>
+          </select>
+          <button class="btn btn-ghost" style="padding:8px 14px;font-size:.8rem;"><i class="fas fa-download"></i> Export</button>
+        </div>
+      </div>
+
+      <div class="page-content">
+
+        <!-- Week strip -->
+        <div class="week-strip animate-in">
+          <div class="day-forecast today">
+            <div class="day-name">Mon</div>
+            <div class="day-risk-icon">🔴</div>
+            <div class="day-risk-val high">87</div>
+          </div>
+          <div class="day-forecast">
+            <div class="day-name">Tue</div>
+            <div class="day-risk-icon">🟡</div>
+            <div class="day-risk-val medium">64</div>
+          </div>
+          <div class="day-forecast">
+            <div class="day-name">Wed</div>
+            <div class="day-risk-icon">🟢</div>
+            <div class="day-risk-val low">32</div>
+          </div>
+          <div class="day-forecast">
+            <div class="day-name">Thu</div>
+            <div class="day-risk-icon">🟡</div>
+            <div class="day-risk-val medium">58</div>
+          </div>
+          <div class="day-forecast">
+            <div class="day-name">Fri</div>
+            <div class="day-risk-icon">🔴</div>
+            <div class="day-risk-val high">91</div>
+          </div>
+          <div class="day-forecast">
+            <div class="day-name">Sat</div>
+            <div class="day-risk-icon">🔴</div>
+            <div class="day-risk-val high">95</div>
+          </div>
+          <div class="day-forecast">
+            <div class="day-name">Sun</div>
+            <div class="day-risk-icon">🟡</div>
+            <div class="day-risk-val medium">72</div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 340px;gap:20px;">
+
+          <!-- Charts -->
+          <div style="display:flex;flex-direction:column;gap:16px;">
+            <div class="card animate-in stagger-1">
+              <div class="card-header">
+                <h3><i class="fas fa-wave-square" style="color:var(--accent);font-size:.8rem;"></i> Predicted Crime Rate</h3>
+                <div style="display:flex;gap:10px;align-items:center;">
+                  <span style="font-size:.72rem;color:var(--text-muted);display:flex;align-items:center;gap:4px;"><span style="display:inline-block;width:10px;height:3px;background:var(--accent);border-radius:2px;"></span>Predicted</span>
+                  <span style="font-size:.72rem;color:var(--text-muted);display:flex;align-items:center;gap:4px;"><span style="display:inline-block;width:10px;height:3px;background:rgba(245,158,11,.8);border-radius:2px;"></span>Historical</span>
+                </div>
+              </div>
+              <div class="card-body" style="padding-top:8px;">
+                <div style="height:260px;"><canvas id="forecastChart"></canvas></div>
+              </div>
+            </div>
+            <div class="forecast-grid animate-in stagger-2">
+              <div class="card">
+                <div class="card-header"><h3><i class="fas fa-clock" style="color:var(--warning);font-size:.75rem;"></i> Hourly Risk</h3></div>
+                <div class="card-body" style="padding-top:8px;"><div style="height:160px;"><canvas id="hourlyChart"></canvas></div></div>
+              </div>
+              <div class="card">
+                <div class="card-header"><h3><i class="fas fa-pie-chart" style="color:var(--accent);font-size:.75rem;"></i> Crime Type Mix</h3></div>
+                <div class="card-body" style="padding-top:8px;display:flex;align-items:center;justify-content:center;"><div style="height:160px;width:160px;"><canvas id="typeChart"></canvas></div></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Insights panel -->
+          <div style="display:flex;flex-direction:column;gap:16px;">
+            <div class="card animate-in stagger-1">
+              <div class="card-header"><h3><i class="fas fa-brain" style="color:var(--accent);font-size:.75rem;"></i> AI Insights</h3></div>
+              <div class="card-body" style="padding:12px 16px;">
+                <div class="insights-panel">
+                  <div class="insight-row">
+                    <div class="insight-icon" style="background:rgba(255,59,59,.1);">⚠️</div>
+                    <div class="insight-text"><strong>Weekend spike expected.</strong> Historical patterns show 40% increase in theft incidents on Fri–Sat evenings.</div>
+                  </div>
+                  <div class="insight-row">
+                    <div class="insight-icon" style="background:rgba(0,212,255,.1);">📊</div>
+                    <div class="insight-text"><strong>Koramangala hotspot</strong> trending upward. Recommend doubling patrol density 22:00–02:00.</div>
+                  </div>
+                  <div class="insight-row">
+                    <div class="insight-icon" style="background:rgba(16,185,129,.1);">✅</div>
+                    <div class="insight-text"><strong>Morning hours safe.</strong> Risk score drops to &lt;15 between 06:00–10:00 across all zones.</div>
+                  </div>
+                  <div class="insight-row">
+                    <div class="insight-icon" style="background:rgba(245,158,11,.1);">🌧</div>
+                    <div class="insight-text"><strong>Weather correlation:</strong> Rainy conditions reduce street crime by ~18% but increase indoor incidents.</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card animate-in stagger-2">
+              <div class="card-header"><h3><i class="fas fa-tachometer-alt" style="color:var(--warning);font-size:.75rem;"></i> Risk Meter</h3></div>
+              <div class="card-body" style="padding:16px;">
+                <div style="text-align:center;margin-bottom:16px;">
+                  <div style="font-family:var(--font-mono);font-size:2.5rem;font-weight:800;color:var(--danger);">87</div>
+                  <div style="font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);">Risk Score · Tonight</div>
+                </div>
+                <div style="height:8px;background:linear-gradient(90deg,var(--success),var(--warning),var(--danger));border-radius:4px;position:relative;">
+                  <div style="position:absolute;top:-4px;left:83%;width:16px;height:16px;background:white;border:3px solid var(--danger);border-radius:50%;transform:translateX(-50%);"></div>
+                </div>
+                <div style="display:flex;justify-content:space-between;margin-top:6px;font-size:.65rem;color:var(--text-muted);font-family:var(--font-mono);">
+                  <span>LOW</span><span>MODERATE</span><span>HIGH</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Forecast data from Django context (fallback to demo)
+    var areas = [{% for item in forecast_data %}"{{ item.area }}",{% endfor %}];
+    var predictions = [{% for item in forecast_data %}{{ item.predicted }},{% endfor %}];
+    if (!areas.length) { areas = ['Central','North','South','East','West','Koramangala','Indiranagar','Whitefield']; predictions = [87,64,72,58,43,91,66,38]; }
+    var histData = predictions.map(function(v) { return Math.max(10, v - Math.round(Math.random()*20-10)); });
+
+    var chartDefaults = { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { ticks: { color: '#4b5563', font: { size: 9 } }, grid: { color: '#1a2d42' } }, y: { ticks: { color: '#4b5563', font: { size: 9 } }, grid: { color: '#1a2d42' } } } };
+
+    new Chart(document.getElementById('forecastChart'), {
+      type: 'line',
+      data: {
+        labels: areas,
+        datasets: [
+          { label: 'Predicted', data: predictions, borderColor: 'rgba(0,212,255,1)', backgroundColor: 'rgba(0,212,255,.08)', borderWidth: 2.5, tension: .4, fill: true, pointBackgroundColor: '#00d4ff', pointRadius: 4 },
+          { label: 'Historical', data: histData, borderColor: 'rgba(245,158,11,.6)', backgroundColor: 'transparent', borderWidth: 1.5, tension: .4, fill: false, pointRadius: 3, borderDash: [4,4] }
+        ]
+      },
+      options: Object.assign({}, chartDefaults, { plugins: { legend: { display: true, labels: { color: '#7b91af', font: { size: 11 }, boxWidth: 14 } } } })
+    });
+
+    new Chart(document.getElementById('hourlyChart'), {
+      type: 'bar',
+      data: {
+        labels: ['00','02','04','06','08','10','12','14','16','18','20','22'],
+        datasets: [{ data: [78,65,45,20,12,18,22,30,40,55,72,91], backgroundColor: function(ctx) { var v = ctx.dataset.data[ctx.dataIndex]; return v > 70 ? 'rgba(255,59,59,.7)' : v > 45 ? 'rgba(245,158,11,.7)' : 'rgba(16,185,129,.7)'; }, borderRadius: 3 }]
+      },
+      options: chartDefaults
+    });
+
+    new Chart(document.getElementById('typeChart'), {
+      type: 'doughnut',
+      data: {
+        labels: ['Theft','Assault','Robbery','Other'],
+        datasets: [{ data: [42,24,19,15], backgroundColor: ['rgba(255,59,59,.8)','rgba(245,158,11,.8)','rgba(0,212,255,.8)','rgba(100,116,139,.6)'], borderWidth: 0, hoverOffset: 4 }]
+      },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, cutout: '65%' }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,222 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+
+<link rel="stylesheet"
+href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<style>
+
+.route-container {
+display: flex;
+height: calc(100vh - 70px);
+}
+
+/* SIDEBAR */
+
+.route-sidebar {
+
+width: 320px;
+background: #0f172a;
+color: white;
+padding: 20px;
+
+display: flex;
+flex-direction: column;
+
+}
+
+.route-sidebar input {
+
+width: 100%;
+padding: 12px;
+margin-bottom: 12px;
+
+background: #1e293b;
+border: none;
+border-radius: 8px;
+color: white;
+
+}
+
+.route-sidebar button {
+
+padding: 12px;
+background: #3b82f6;
+border: none;
+border-radius: 8px;
+
+font-weight: bold;
+cursor: pointer;
+
+}
+
+.route-sidebar button:hover {
+
+background: #2563eb;
+
+}
+
+/* MAP */
+
+#map {
+
+flex: 1;
+height: 100%;
+
+}
+
+</style>
+
+<div class="route-container">
+
+<!-- SIDEBAR -->
+
+<div class="route-sidebar">
+
+<h2>Safe Route Finder</h2>
+
+<form method="POST">
+
+{% csrf_token %}
+
+<input
+type="text"
+name="source"
+placeholder="Enter Source"
+value="{{ route.source|default:'' }}"
+required
+>
+
+<input
+type="text"
+name="destination"
+placeholder="Enter Destination"
+value="{{ route.destination|default:'' }}"
+required
+>
+
+<button type="submit">
+
+Find Safe Route
+
+</button>
+
+</form>
+
+{% if route %}
+
+<div style="margin-top:20px">
+
+<p>
+
+<b>Safety Score:</b>
+{{ route.overall_score }}%
+
+</p>
+
+<p>
+
+<b>Risk Level:</b>
+{{ route.overall_risk }}
+
+</p>
+
+<a
+href="{{ route.map_link }}"
+target="_blank"
+style="color:#60a5fa"
+>
+
+Open Full Route in Google Maps
+
+</a>
+
+</div>
+
+{% endif %}
+
+</div>
+
+<!-- MAP -->
+
+<div id="map"></div>
+
+</div>
+
+<script>
+
+// Initialize map
+
+const map = L.map('map')
+.setView([12.9716, 77.5946], 12);
+
+// Tile layer
+
+L.tileLayer(
+'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+{
+attribution: '© OpenStreetMap'
+}).addTo(map);
+
+
+// If route exists → draw line
+
+{% if route %}
+
+function getCoords(place){
+
+const coords = {
+
+"koramangala":[12.9352,77.6245],
+"whitefield":[12.9698,77.7499],
+"indiranagar":[12.9784,77.6408],
+"jayanagar":[12.9250,77.5938],
+"hebbal":[13.0351,77.5970]
+
+};
+
+return coords[
+place.toLowerCase()
+] || [12.9716,77.5946];
+
+}
+
+const srcCoords =
+getCoords("{{ route.source }}");
+
+const dstCoords =
+getCoords("{{ route.destination }}");
+
+// Markers
+
+L.marker(srcCoords)
+.addTo(map)
+.bindPopup("Source");
+
+L.marker(dstCoords)
+.addTo(map)
+.bindPopup("Destination");
+
+// Route line
+
+const line =
+L.polyline(
+[srcCoords, dstCoords],
+{color:'blue'}
+).addTo(map);
+
+// Zoom fit
+
+map.fitBounds(
+line.getBounds()
+);
+
+{% endif %}
+
+</script>
+
+{% endblock %}

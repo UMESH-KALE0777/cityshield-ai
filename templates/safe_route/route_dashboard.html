@@ -1,0 +1,195 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Safe Route — Urban Safety AI</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Syne:wght@700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <style>
+    .route-shell { display: flex; height: 100%; position: relative; }
+    .route-panel { width: 360px; flex-shrink: 0; background: var(--bg-secondary); border-right: 1px solid var(--border); display: flex; flex-direction: column; overflow-y: auto; z-index: 10; }
+    .route-panel-header { padding: 20px 20px 16px; border-bottom: 1px solid var(--border); }
+    .route-panel-body { padding: 20px; display: flex; flex-direction: column; gap: 14px; flex: 1; }
+    .map-area { flex: 1; position: relative; }
+    #routeMap { position: absolute; inset: 0; }
+    .input-pin-line { display: flex; flex-direction: column; gap: 4px; position: relative; }
+    .pin-dot { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: .85rem; flex-shrink: 0; }
+    .pin-dot.start { background: rgba(16,185,129,.12); border: 1px solid rgba(16,185,129,.25); }
+    .pin-dot.end { background: rgba(255,59,59,.12); border: 1px solid rgba(255,59,59,.25); }
+    .pin-row { display: flex; align-items: center; gap: 10px; }
+    .pin-connector { width: 1px; height: 14px; background: var(--border); margin-left: 15px; border-left: 2px dashed var(--border); }
+    .route-stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+    .route-stat { text-align: center; padding: 10px 8px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; }
+    .route-stat-val { font-family: var(--font-mono); font-size: 1rem; font-weight: 700; color: var(--text-primary); }
+    .route-stat-lbl { font-size: .62rem; text-transform: uppercase; letter-spacing: .07em; color: var(--text-muted); margin-top: 2px; }
+    .risk-score-ring { display: flex; flex-direction: column; align-items: center; padding: 16px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; }
+    .ring-val { font-family: var(--font-mono); font-size: 2rem; font-weight: 800; }
+    .waypoint-list { display: flex; flex-direction: column; gap: 6px; }
+    .waypoint { display: flex; align-items: center; gap: 10px; padding: 9px 12px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; font-size: .82rem; }
+    .wp-icon { width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: .65rem; font-weight: 800; flex-shrink: 0; }
+    .alt-route { padding: 10px 12px; background: rgba(0,212,255,.04); border: 1px solid rgba(0,212,255,.15); border-radius: 8px; cursor: pointer; transition: all .18s; }
+    .alt-route:hover { background: rgba(0,212,255,.08); border-color: var(--accent); }
+    .alt-route-head { display: flex; justify-content: space-between; align-items: center; font-size: .8rem; font-weight: 600; margin-bottom: 4px; }
+    .alt-route-meta { font-size: .72rem; color: var(--text-muted); font-family: var(--font-mono); }
+    .map-legend { position: absolute; top: 16px; right: 16px; z-index: 500; background: rgba(8,12,20,.88); backdrop-filter: blur(10px); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; }
+    .legend-item { display: flex; align-items: center; gap: 8px; font-size: .75rem; color: var(--text-secondary); margin-bottom: 6px; }
+    .legend-item:last-child { margin-bottom: 0; }
+    .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .legend-line { width: 18px; height: 3px; border-radius: 2px; flex-shrink: 0; }
+  </style>
+</head>
+<body>
+  {% include 'navbar.html' %}
+  <div class="app-shell">
+    {% include 'sidebar.html' %}
+    <div class="main-area" style="overflow:hidden;">
+      <div class="route-shell">
+
+        <!-- Left Panel -->
+        <div class="route-panel">
+          <div class="route-panel-header">
+            <h2 style="font-family:var(--font-display);font-size:1.1rem;font-weight:800;margin-bottom:4px;display:flex;align-items:center;gap:8px;">
+              <i class="fas fa-route" style="color:var(--accent);font-size:.9rem;"></i> Safe Route AI
+            </h2>
+            <p style="font-size:.78rem;color:var(--text-muted);line-height:1.4;">Find the most secure path, avoiding historical crime hotspots.</p>
+          </div>
+          <div class="route-panel-body">
+
+            <form method="POST" id="routeForm" style="display:flex;flex-direction:column;gap:12px;">
+              {% csrf_token %}
+              <div class="input-pin-line">
+                <div class="pin-row">
+                  <div class="pin-dot start">🟢</div>
+                  <input type="text" name="start" class="form-input" placeholder="Starting point (e.g. M.G. Road)" id="startInput" value="{% if start %}{{ start }}{% endif %}">
+                </div>
+                <div class="pin-connector"></div>
+                <div class="pin-row">
+                  <div class="pin-dot end">🔴</div>
+                  <input type="text" name="end" class="form-input" placeholder="Destination (e.g. Indiranagar)" id="endInput" value="{% if end %}{{ end }}{% endif %}">
+                </div>
+              </div>
+              <div style="display:flex;gap:8px;">
+                <select class="form-input" style="flex:1;">
+                  <option>🚗 Drive</option>
+                  <option>🚶 Walk</option>
+                  <option>🚌 Transit</option>
+                </select>
+                <select class="form-input" style="flex:1;">
+                  <option>Now</option>
+                  <option>Tonight 22:00</option>
+                  <option>Tomorrow morning</option>
+                </select>
+              </div>
+              <button type="submit" class="btn btn-primary" style="width:100%;padding:12px;font-size:.875rem;" id="routeBtn">
+                <i class="fas fa-compass"></i> Calculate Safe Route
+              </button>
+            </form>
+
+            {% if risk_score != None %}
+            <div class="risk-score-ring">
+              <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);margin-bottom:8px;font-weight:700;">Route Risk Score</div>
+              <div class="ring-val" style="color:{% if risk_score > 70 %}var(--danger){% elif risk_score > 40 %}var(--warning){% else %}var(--success){% endif %};">{{ risk_score }}</div>
+              <div style="font-size:.75rem;color:var(--text-muted);margin-top:4px;">{% if risk_score > 70 %}High Risk — Caution advised{% elif risk_score > 40 %}Moderate — Stay alert{% else %}Low Risk — Safe to travel{% endif %}</div>
+            </div>
+            {% endif %}
+
+            <!-- Route stats -->
+            <div>
+              <div style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);margin-bottom:8px;">Route Analysis</div>
+              <div class="route-stats">
+                <div class="route-stat">
+                  <div class="route-stat-val" style="color:{% if risk_score and risk_score > 70 %}var(--danger){% elif risk_score and risk_score > 40 %}var(--warning){% else %}var(--success){% endif %};">{% if risk_score %}{{ risk_score }}{% else %}–{% endif %}</div>
+                  <div class="route-stat-lbl">Risk</div>
+                </div>
+                <div class="route-stat">
+                  <div class="route-stat-val">22m</div>
+                  <div class="route-stat-lbl">Duration</div>
+                </div>
+                <div class="route-stat">
+                  <div class="route-stat-val">7.4km</div>
+                  <div class="route-stat-lbl">Distance</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Waypoints -->
+            <div>
+              <div style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);margin-bottom:8px;">Turn-by-Turn</div>
+              <div class="waypoint-list">
+                <div class="waypoint"><div class="wp-icon" style="background:rgba(16,185,129,.15);color:var(--success);">A</div><span style="color:var(--text-secondary);">Head north on MG Road</span><span style="font-size:.72rem;color:var(--text-muted);margin-left:auto;font-family:var(--font-mono);">1.2km</span></div>
+                <div class="waypoint"><div class="wp-icon" style="background:rgba(0,212,255,.1);color:var(--accent);">→</div><span style="color:var(--text-secondary);">Turn right onto 100ft Road</span><span style="font-size:.72rem;color:var(--text-muted);margin-left:auto;font-family:var(--font-mono);">2.8km</span></div>
+                <div class="waypoint" style="border-color:rgba(245,158,11,.3);"><div class="wp-icon" style="background:rgba(245,158,11,.12);color:var(--warning);">⚠</div><span style="color:var(--text-secondary);">Moderate risk zone ahead</span><span style="font-size:.72rem;color:var(--warning);margin-left:auto;font-family:var(--font-mono);">Stay alert</span></div>
+                <div class="waypoint"><div class="wp-icon" style="background:rgba(16,185,129,.15);color:var(--success);">→</div><span style="color:var(--text-secondary);">Turn left — Indiranagar</span><span style="font-size:.72rem;color:var(--text-muted);margin-left:auto;font-family:var(--font-mono);">3.4km</span></div>
+                <div class="waypoint"><div class="wp-icon" style="background:rgba(255,59,59,.12);color:var(--danger);">B</div><span style="color:var(--text-secondary);">Arrive at destination</span><span style="font-size:.72rem;color:var(--text-muted);margin-left:auto;font-family:var(--font-mono);">0km</span></div>
+              </div>
+            </div>
+
+            <!-- Alternate routes -->
+            <div>
+              <div style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);margin-bottom:8px;">Alternate Routes</div>
+              <div class="alt-route" style="margin-bottom:8px;">
+                <div class="alt-route-head"><span>Via Outer Ring Road</span><span class="badge badge-success" style="font-size:.65rem;">Safest</span></div>
+                <div class="alt-route-meta">26 mins · 9.1km · Risk: 18</div>
+              </div>
+              <div class="alt-route">
+                <div class="alt-route-head"><span>Via Hosur Road</span><span class="badge badge-warning" style="font-size:.65rem;">Moderate</span></div>
+                <div class="alt-route-meta">19 mins · 6.3km · Risk: 52</div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Map -->
+        <div class="map-area">
+          <div id="routeMap"></div>
+          <div class="map-legend">
+            <div style="font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);margin-bottom:8px;">Legend</div>
+            <div class="legend-item"><div class="legend-line" style="background:#2563eb;"></div><span>Safe Route</span></div>
+            <div class="legend-item"><div class="legend-line" style="background:#f59e0b;border: 2px dashed #f59e0b;background:transparent;"></div><span>Alt. Route</span></div>
+            <div class="legend-item"><div class="legend-dot" style="background:#ff3b3b;box-shadow:0 0 6px #ff3b3b;"></div><span>High Risk Zone</span></div>
+            <div class="legend-item"><div class="legend-dot" style="background:#f59e0b;"></div><span>Medium Risk</span></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script>
+    var map = L.map('routeMap', { zoomControl: false, attributionControl: false }).setView([12.9716, 77.5946], 13);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { subdomains: 'abcd', maxZoom: 20 }).addTo(map);
+    L.control.zoom({ position: 'bottomright' }).addTo(map);
+    L.control.attribution({ position: 'bottomleft', prefix: '' }).addTo(map);
+
+    // Risk zones
+    L.circle([12.9616, 77.6046], { radius: 500, color: '#ff3b3b', fillColor: '#ff3b3b', fillOpacity: .12, weight: 1.5 }).addTo(map);
+    L.circle([12.9416, 77.5746], { radius: 400, color: '#f59e0b', fillColor: '#f59e0b', fillOpacity: .1, weight: 1.5 }).addTo(map);
+
+    // Main route
+    var routePoints = [[12.9716,77.5946],[12.9666,77.5996],[12.9616,77.6046],[12.9566,77.6096],[12.9516,77.6146]];
+    L.polyline(routePoints, { color: '#2563eb', weight: 5, opacity: .85, lineJoin: 'round', lineCap: 'round' }).addTo(map);
+
+    // Alt route
+    var altPoints = [[12.9716,77.5946],[12.9816,77.5846],[12.9716,77.5746],[12.9616,77.5946],[12.9516,77.6146]];
+    L.polyline(altPoints, { color: '#f59e0b', weight: 3, opacity: .55, dashArray: '8 6' }).addTo(map);
+
+    // Markers
+    var startIcon = L.divIcon({ className:'', html:"<div style='width:14px;height:14px;border-radius:50%;background:#22c55e;border:2px solid white;box-shadow:0 0 8px #22c55e;'></div>", iconSize:[14,14], iconAnchor:[7,7] });
+    var endIcon = L.divIcon({ className:'', html:"<div style='width:14px;height:14px;border-radius:50%;background:#ef4444;border:2px solid white;box-shadow:0 0 8px #ef4444;'></div>", iconSize:[14,14], iconAnchor:[7,7] });
+    L.marker(routePoints[0], { icon: startIcon }).addTo(map).bindPopup('Start: MG Road');
+    L.marker(routePoints[routePoints.length-1], { icon: endIcon }).addTo(map).bindPopup('End: Indiranagar');
+    map.fitBounds(L.polyline(routePoints).getBounds(), { padding: [40, 40] });
+
+    document.getElementById('routeForm').addEventListener('submit', function() {
+      var btn = document.getElementById('routeBtn');
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Calculating...';
+      btn.style.opacity = '.8';
+    });
+  </script>
+</body>
+</html>

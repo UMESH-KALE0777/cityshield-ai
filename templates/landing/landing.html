@@ -1,0 +1,468 @@
+{% load static %}
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SafeCity | Intelligent Urban Safety &amp; Crime Analytics</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;800;900&amp;family=Manrope:wght@200;300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<!-- Icons -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-surface": "#dae2fd",
+              "error-container": "#93000a",
+              "secondary-fixed": "#acedff",
+              "secondary-fixed-dim": "#4cd7f6",
+              "outline-variant": "#464555",
+              "surface-container-lowest": "#060e20",
+              "on-secondary": "#003640",
+              "surface-bright": "#31394d",
+              "surface-variant": "#2d3449",
+              "on-surface-variant": "#c7c4d8",
+              "on-primary-fixed-variant": "#3323cc",
+              "on-secondary-fixed-variant": "#004e5c",
+              "on-primary": "#1d00a5",
+              "on-tertiary-container": "#ffd2be",
+              "surface-container-highest": "#2d3449",
+              "outline": "#918fa1",
+              "primary": "#c3c0ff",
+              "primary-container": "#4f46e5",
+              "surface-tint": "#c3c0ff",
+              "tertiary-fixed": "#ffdbcc",
+              "on-primary-fixed": "#0f0069",
+              "tertiary-fixed-dim": "#ffb695",
+              "secondary-container": "#03b5d3",
+              "inverse-on-surface": "#283044",
+              "primary-fixed": "#e2dfff",
+              "surface-dim": "#0b1326",
+              "on-tertiary-fixed": "#351000",
+              "on-secondary-container": "#00424e",
+              "on-tertiary": "#571f00",
+              "surface-container-high": "#222a3d",
+              "inverse-surface": "#dae2fd",
+              "primary-fixed-dim": "#c3c0ff",
+              "secondary": "#4cd7f6",
+              "surface-container": "#171f33",
+              "on-secondary-fixed": "#001f26",
+              "on-tertiary-fixed-variant": "#7b2f00",
+              "on-primary-container": "#dad7ff",
+              "error": "#ffb4ab",
+              "surface": "#0b1326",
+              "background": "#0b1326",
+              "tertiary": "#ffb695",
+              "on-background": "#dae2fd",
+              "on-error": "#690005",
+              "on-error-container": "#ffdad6",
+              "surface-container-low": "#131b2e",
+              "inverse-primary": "#4d44e3",
+              "tertiary-container": "#a44100"
+            },
+            fontFamily: {
+              "headline": ["Space Grotesk"],
+              "body": ["Manrope"],
+              "label": ["Manrope"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      .noir-gradient-primary {
+        background: linear-gradient(135deg, #4f46e5 0%, #c3c0ff 100%);
+      }
+      .glass-panel {
+        background: rgba(49, 57, 77, 0.6);
+        backdrop-filter: blur(20px);
+      }
+      .pulse-dot {
+        position: relative;
+      }
+      .pulse-dot::after {
+        content: '';
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background: #4cd7f6;
+        border-radius: 50%;
+        z-index: -1;
+        animation: pulse 2s infinite ease-out;
+      }
+      @keyframes pulse {
+        0% { transform: scale(1); opacity: 0.8; }
+        100% { transform: scale(3); opacity: 0; }
+      }
+      .no-scrollbar::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body selection:bg-primary-container selection:text-white">
+<!-- Top Navigation Bar -->
+<nav class="fixed top-0 w-full z-50 flex justify-between items-center px-6 py-4 bg-surface-container/60 dark:bg-[#171f33]/60 backdrop-blur-xl">
+<div class="flex items-center gap-8">
+<a class="text-2xl font-black text-indigo-600 dark:text-[#c3c0ff] tracking-tighter font-headline flex items-center gap-2" href="#">
+<span class="material-symbols-outlined text-3xl" data-icon="shield">shield</span>
+                SafeCity
+            </a>
+<div class="hidden md:flex gap-6 items-center">
+<a class="font-headline font-bold tracking-tight text-slate-600 dark:text-[#dae2fd] hover:text-indigo-500 dark:hover:text-[#4cd7f6] transition-colors duration-300" href="#features">Features</a>
+<a class="font-headline font-bold tracking-tight text-slate-600 dark:text-[#dae2fd] hover:text-indigo-500 dark:hover:text-[#4cd7f6] transition-colors duration-300" href="#how-it-works">How It Works</a>
+<a class="font-headline font-bold tracking-tight text-slate-600 dark:text-[#dae2fd] hover:text-indigo-500 dark:hover:text-[#4cd7f6] transition-colors duration-300" href="#cities">Cities</a>
+<a class="font-headline font-bold tracking-tight text-slate-600 dark:text-[#dae2fd] hover:text-indigo-500 dark:hover:text-[#4cd7f6] transition-colors duration-300" href="#about">About</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<a href="{% url 'login' %}"
+   class="px-5 py-2 text-on-surface font-bold font-headline hover:text-primary transition-colors">
+Login
+</a>
+<a href="{% url 'register' %}"
+   class="noir-gradient-primary px-6 py-2.5 rounded-xl text-on-primary-fixed font-bold font-headline shadow-lg hover:brightness-110">
+Get Started
+</a>
+</div>
+</nav>
+<main class="pt-24">
+<!-- Hero Section -->
+<section class="container mx-auto px-6 py-20 flex flex-col md:flex-row items-center gap-16">
+<div class="md:w-1/2 space-y-8">
+<div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-surface-container-high border border-outline-variant/15">
+<span class="w-2 h-2 rounded-full bg-secondary pulse-dot"></span>
+<span class="text-[10px] font-label font-bold uppercase tracking-widest text-secondary">Trusted by 12+ Municipal Bodies</span>
+</div>
+<h1 class="text-5xl md:text-7xl font-headline font-extrabold tracking-tight leading-tight">
+                    Safer Cities with <span class="text-transparent bg-clip-text noir-gradient-primary">Intelligent</span> Crime Insights
+                </h1>
+<p class="text-lg text-outline leading-relaxed max-w-lg">
+                    Real-time crime analytics and AI-driven route optimization designed to make urban spaces safer. Harness the power of community data and predictive intelligence.
+                </p>
+<div class="flex flex-wrap gap-4 pt-4">
+<a href="{% url 'register' %}"
+   class="noir-gradient-primary px-8 py-4 rounded-xl text-on-primary-fixed font-bold font-headline text-lg hover:brightness-110 active:scale-95 transition-all">Get Started Free</a>
+<button class="px-8 py-4 rounded-xl border border-outline-variant/20 bg-surface-container-low hover:bg-surface-container-high flex items-center gap-3 font-bold font-headline text-lg transition-all group">
+<span class="material-symbols-outlined text-primary group-hover:scale-110 transition-transform" data-icon="play_circle">play_circle</span>
+                        Watch Demo
+                    </button>
+</div>
+</div>
+<div class="md:w-1/2 relative">
+<div class="absolute -z-10 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-primary-container/10 blur-[120px] rounded-full"></div>
+<div class="bg-surface-container-low rounded-[2rem] p-4 shadow-2xl border border-outline-variant/10">
+<div class="rounded-[1.5rem] overflow-hidden aspect-[4/3] bg-surface-dim relative border border-outline-variant/20">
+<img alt="Intelligence Dashboard Map" class="w-full h-full object-cover opacity-60" data-alt="abstract futuristic city map dark noir style with pulsing cyan and indigo data points grid lines and satellite interface aesthetic" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBaIhVX0ymdJZdfAvvOJ3oS0ce-S0gyBamPhlnItCA7Kz3Ul6nhq_vOGBnSZMZjlcfz4MrXjHWHQlzFEmePINv_ihlVYIOEKFE-VG2niEnS-KUbFFibzHsdKoDTtlY5RbOzRrLhI7YVk8mEfQm-Gx-8HhB-3X4Slbw5rEekSRoeQjDsfXP5nbg5C4kZTYSPZaGF9WTTBh7yQYYkOkGbKQZukaBGKQk6tvDdmzzV_orEyoeebVCg3cgTTZLKyLerxoX_nfNA-JJUYaw"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface-dim via-transparent to-transparent"></div>
+<!-- UI Elements Overlay -->
+<div class="absolute top-4 left-4 glass-panel p-4 rounded-xl border border-white/5 space-y-3">
+<div class="flex items-center gap-3">
+<span class="w-3 h-3 rounded-full bg-error animate-pulse"></span>
+<span class="text-[10px] font-label font-bold uppercase tracking-widest text-on-surface">Active Alert: Zone 4B</span>
+</div>
+<div class="h-1 w-32 bg-outline-variant/30 rounded-full overflow-hidden">
+<div class="h-full w-2/3 bg-error rounded-full"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Stats Bar -->
+<section class="bg-surface-container-low py-16 border-y border-outline-variant/10">
+<div class="container mx-auto px-6">
+<div class="grid grid-cols-2 md:grid-cols-4 gap-12 text-center">
+<div>
+<div class="text-4xl font-headline font-black text-on-surface mb-2">2.4M+</div>
+<div class="text-[10px] font-label font-bold uppercase tracking-[0.2em] text-outline">Reports Analyzed</div>
+</div>
+<div>
+<div class="text-4xl font-headline font-black text-secondary mb-2">18</div>
+<div class="text-[10px] font-label font-bold uppercase tracking-[0.2em] text-outline">Indian Cities</div>
+</div>
+<div>
+<div class="text-4xl font-headline font-black text-primary mb-2">94%</div>
+<div class="text-[10px] font-label font-bold uppercase tracking-[0.2em] text-outline">AI Accuracy</div>
+</div>
+<div>
+<div class="text-4xl font-headline font-black text-on-surface mb-2">3.2L</div>
+<div class="text-[10px] font-label font-bold uppercase tracking-[0.2em] text-outline">Protected Citizens</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Features Bento Grid -->
+<section class="container mx-auto px-6 py-32" id="features">
+<div class="flex flex-col items-center mb-20 text-center">
+<span class="text-[10px] font-label font-bold uppercase tracking-widest text-secondary mb-4">Precision Tools</span>
+<h2 class="text-4xl md:text-5xl font-headline font-extrabold tracking-tight mb-6">Designed for The Sentinel</h2>
+<p class="text-outline max-w-2xl">Leverage professional-grade analytics and community intelligence tools designed to keep you informed and secure.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-4 grid-rows-2 gap-6 h-[800px] md:h-[600px]">
+<!-- Heatmap -->
+<div class="md:col-span-2 bg-surface-container hover:bg-surface-container-high border border-outline-variant/10 rounded-3xl p-8 flex flex-col justify-between group transition-all duration-500 overflow-hidden relative">
+<div class="absolute top-0 right-0 w-64 h-64 bg-primary/5 blur-[80px] rounded-full group-hover:bg-primary/10 transition-colors"></div>
+<div>
+<span class="material-symbols-outlined text-primary text-4xl mb-6" data-icon="query_stats">query_stats</span>
+<h3 class="text-2xl font-headline font-bold mb-4">Crime Heatmap</h3>
+<p class="text-outline text-sm leading-relaxed max-w-xs">Interactive visual analysis of historical crime patterns across city districts.</p>
+</div>
+<img alt="Heatmap Preview" class="absolute -bottom-10 -right-10 w-64 h-48 object-cover rounded-2xl opacity-40 group-hover:scale-110 transition-transform duration-500" data-alt="highly detailed dark mode ui crime heatmap visualization vibrant glowing red and blue zones on black background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBOzgSbR6KpvMVf49uV70alvPXo1VMYdT0wwPEWL0s7qlkNJvf8sh9MIA1jSzBrT5-vWRtdV64neTpFrwcNvnSojm7bgHXRABXF9NWaXyoE7gOiQ6ej4k12jg3VAEhG3PUgs3-vU0f_TtmWg1KL8fMFEK8v6qXDEVlk8NcRdvDQBYxiekGcEQIQqo65SBDlNm31ToXDK-2bAiT3XVUhWNND2fDMrqagbMfZULeGZWZgxPv7k8kThOPFKyl8OcSq_c1giNbThmTAq-4"/>
+</div>
+<!-- Safe Route -->
+<div class="md:col-span-2 bg-surface-container hover:bg-surface-container-high border border-outline-variant/10 rounded-3xl p-8 flex flex-col group transition-all duration-500 relative">
+<div class="mb-auto">
+<span class="material-symbols-outlined text-secondary text-4xl mb-6" data-icon="directions_run">directions_run</span>
+<h3 class="text-2xl font-headline font-bold mb-4">Safe Route Finder</h3>
+<p class="text-outline text-sm leading-relaxed max-w-xs">AI-optimized navigation pathing based on street lighting and active patrol data.</p>
+</div>
+<div class="mt-8 flex gap-2">
+<div class="h-1 bg-secondary w-full rounded-full"></div>
+<div class="h-1 bg-outline-variant w-full rounded-full"></div>
+<div class="h-1 bg-outline-variant w-full rounded-full"></div>
+</div>
+</div>
+<!-- Alerts -->
+<div class="md:col-span-1 bg-surface-container-low border border-outline-variant/10 rounded-3xl p-8 flex flex-col group hover:border-primary/30 transition-all">
+<span class="material-symbols-outlined text-on-surface text-4xl mb-6" data-icon="notifications_active">notifications_active</span>
+<h3 class="text-xl font-headline font-bold mb-4">Real-Time Alerts</h3>
+<p class="text-outline text-xs leading-relaxed">Instant proximity-based notifications for verified safety incidents.</p>
+</div>
+<!-- Community -->
+<div class="md:col-span-3 bg-surface-container-high border border-outline-variant/20 rounded-3xl p-8 flex items-center gap-12 group overflow-hidden">
+<div class="flex-1">
+<span class="material-symbols-outlined text-secondary text-4xl mb-6" data-icon="report_problem">report_problem</span>
+<h3 class="text-2xl font-headline font-bold mb-4">Community Reporting</h3>
+<p class="text-outline text-sm leading-relaxed max-w-sm">Anonymized, verified incident reporting with AI-validated credibility scores.</p>
+</div>
+<div class="hidden md:flex gap-4 items-end">
+<div class="w-16 h-32 bg-surface-container-highest rounded-t-full border-t border-secondary/20"></div>
+<div class="w-16 h-48 bg-surface-container-highest rounded-t-full border-t border-primary/20"></div>
+<div class="w-16 h-24 bg-surface-container-highest rounded-t-full border-t border-secondary/20"></div>
+</div>
+</div>
+</div>
+</section>
+<!-- How It Works -->
+<section class="bg-surface py-32" id="how-it-works">
+<div class="container mx-auto px-6">
+<div class="max-w-4xl mx-auto">
+<div class="text-center mb-20">
+<h2 class="text-4xl font-headline font-extrabold tracking-tight mb-4">The Activation Flow</h2>
+<p class="text-outline">Three simple steps to secure your urban journey.</p>
+</div>
+<div class="relative flex flex-col md:flex-row justify-between gap-12 items-start">
+<!-- Connecting Line -->
+<div class="hidden md:block absolute top-10 left-0 w-full h-px bg-gradient-to-r from-transparent via-outline-variant/30 to-transparent -z-10"></div>
+<div class="flex flex-col items-center text-center space-y-6 flex-1">
+<div class="w-20 h-20 rounded-2xl bg-surface-container-highest border border-outline-variant/30 flex items-center justify-center text-2xl font-headline font-bold text-primary shadow-xl">01</div>
+<h4 class="text-xl font-headline font-bold">City Selector</h4>
+<p class="text-outline text-sm">Choose your current metropolis to initialize the local dataset.</p>
+</div>
+<div class="flex flex-col items-center text-center space-y-6 flex-1">
+<div class="w-20 h-20 rounded-2xl bg-surface-container-highest border border-outline-variant/30 flex items-center justify-center text-2xl font-headline font-bold text-secondary shadow-xl">02</div>
+<h4 class="text-xl font-headline font-bold">Explore Data</h4>
+<p class="text-outline text-sm">Identify high-risk zones and safe-haven locations in real-time.</p>
+</div>
+<div class="flex flex-col items-center text-center space-y-6 flex-1">
+<div class="w-20 h-20 rounded-2xl bg-surface-container-highest border border-outline-variant/30 flex items-center justify-center text-2xl font-headline font-bold text-on-surface shadow-xl">03</div>
+<h4 class="text-xl font-headline font-bold">Navigate Securely</h4>
+<p class="text-outline text-sm">Follow optimized paths monitored by SafeCity intelligence.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- India Focus / City Preview -->
+<section class="container mx-auto px-6 py-32" id="cities">
+<div class="flex flex-col md:flex-row justify-between items-end gap-8 mb-16">
+<div class="max-w-xl">
+<span class="text-[10px] font-label font-bold uppercase tracking-widest text-primary mb-4 block">Active Deployments</span>
+<h2 class="text-4xl font-headline font-extrabold tracking-tight">Safeguarding India's Hubs</h2>
+</div>
+<div class="flex gap-4">
+<button class="w-12 h-12 rounded-full border border-outline-variant/20 flex items-center justify-center hover:bg-surface-container-high transition-colors"><span class="material-symbols-outlined" data-icon="chevron_left">chevron_left</span></button>
+<button class="w-12 h-12 rounded-full border border-outline-variant/20 flex items-center justify-center hover:bg-surface-container-high transition-colors"><span class="material-symbols-outlined" data-icon="chevron_right">chevron_right</span></button>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+<!-- Mumbai -->
+<div class="group relative overflow-hidden rounded-[2rem] aspect-[4/5] bg-surface-container-high border border-outline-variant/10">
+<img alt="Mumbai Security Grid" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 opacity-50" data-alt="cyberpunk noir mumbai marine drive at night with digital safety overlays and glimmering city lights" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA_0u0wUaHdY8RKERY-CSQHFS2HwFyhX7QkCbfhiliUOVdNQJV1uH97DHK6TnjzFZNpKYo8ResovdxDfXWJ3ejYwRhyRb8CplqtC1igMNEWDcmhl1xXPig4qUWjg6FMOs8vNOK3aSPGVyE1d6EH_RrDSyeGDzskH6m6snXjClTQL6UzMfa1VGbU1o6IQVse3LDP4wvkyVAfMzCemz9qeoC7kT9cEPtfiFIUXOpzc1F-OE_F0UuVBFMbeGTQfJ7d_HuZHJuTb-xsbOE"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface-dim via-transparent to-transparent"></div>
+<div class="absolute bottom-8 left-8 right-8">
+<h4 class="text-3xl font-headline font-black mb-2">Mumbai</h4>
+<p class="text-secondary font-label font-bold text-[10px] tracking-widest uppercase mb-4">842 Verified Safe Zones</p>
+<button class="w-full py-4 bg-white/10 backdrop-blur-md rounded-xl font-headline font-bold hover:bg-white/20 transition-all border border-white/10">Explore Grid</button>
+</div>
+</div>
+<!-- Delhi -->
+<div class="group relative overflow-hidden rounded-[2rem] aspect-[4/5] bg-surface-container-high border border-outline-variant/10">
+<img alt="Delhi Security Grid" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 opacity-50" data-alt="futuristic intelligence noir delhi india gate digital blueprint aesthetic night view cool tones" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBT0nUx8Elanjx0jWoF9CAS_aS2I0RWpiYEzb7YP2zpOirHegn2zZ0gLlgJ02vVvaOVN2omQNQABp5cdCz2ujnfTRbvSgqJvtFhyCwH6GNfVs49Cdka-hy3tzbjSJ2b_Q1IlWMASQa2Lqj4uy2bGmE9nvFuWJhVYc9Atij1fKatHqcWDl-2FwcPg5n9hGb4UDhuqixOANeufmP3R3SsqC-49PaBsnr_me6CnJeOsVVCqcPUd_yMYmUH0U71TxJj-BvSWHq-PPAZ6cc"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface-dim via-transparent to-transparent"></div>
+<div class="absolute bottom-8 left-8 right-8">
+<h4 class="text-3xl font-headline font-black mb-2">Delhi</h4>
+<p class="text-secondary font-label font-bold text-[10px] tracking-widest uppercase mb-4">1,105 Active Sensors</p>
+<button class="w-full py-4 bg-white/10 backdrop-blur-md rounded-xl font-headline font-bold hover:bg-white/20 transition-all border border-white/10">Explore Grid</button>
+</div>
+</div>
+<!-- Bengaluru -->
+<div class="group relative overflow-hidden rounded-[2rem] aspect-[4/5] bg-surface-container-high border border-outline-variant/10">
+<img alt="Bengaluru Security Grid" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 opacity-50" data-alt="tech noir bengaluru electronic city nightscape with glowing digital safety nodes and clean ui aesthetic" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCtG3YpgZj2aG54URn_UVJhkX9IvQmB3nkCoetgtNPDEe-moe_TMHJiHFnSHk41AfjAmSLEDX57uoNBWTv7jsNOBV5KHQUUfFDigw26hu3CNgGeGtTqeoeDIle44PBMENCKvPbISYk4M0ZOb6SPiqEULQQ3qmakfE-e6ThQU3iYJhMvpMyHsP_6sdd-9DQrDGZODH4rIUElWkTtAMChmceqkI53_5ryp3cLWMSXGjZ6uLZcBX_yjHIlURO1BzGj9UeyUqGitRd8Bkc"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface-dim via-transparent to-transparent"></div>
+<div class="absolute bottom-8 left-8 right-8">
+<h4 class="text-3xl font-headline font-black mb-2">Bengaluru</h4>
+<p class="text-secondary font-label font-bold text-[10px] tracking-widest uppercase mb-4">620 Community Guardians</p>
+<button class="w-full py-4 bg-white/10 backdrop-blur-md rounded-xl font-headline font-bold hover:bg-white/20 transition-all border border-white/10">Explore Grid</button>
+</div>
+</div>
+</div>
+</section>
+<!-- Mission Section -->
+<section class="bg-surface-container-lowest py-32 border-y border-outline-variant/10 overflow-hidden relative">
+<div class="absolute -right-64 top-0 w-[600px] h-[600px] bg-primary/5 blur-[120px] rounded-full"></div>
+<div class="container mx-auto px-6">
+<div class="flex flex-col md:flex-row gap-20 items-center">
+<div class="md:w-1/2 space-y-10">
+<div class="inline-flex items-center gap-2 text-primary">
+<span class="material-symbols-outlined" data-icon="female">female</span>
+<span class="font-label font-bold uppercase tracking-widest text-[10px]">Empowerment &amp; Safety</span>
+</div>
+<blockquote class="text-3xl md:text-4xl font-headline font-light italic leading-relaxed text-on-surface">
+                            "SafeCity doesn't just map incidents; it empowers a generation of women to reclaim the city streets with confidence and community-backed intelligence."
+                        </blockquote>
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-full overflow-hidden bg-surface-container-highest">
+<img alt="NGO Director" class="w-full h-full object-cover grayscale opacity-80" data-alt="professional portrait of indian woman ngo director confident kind leadership" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBQE-Byfw34obErbkffL3Iom2dEU3lBZo3b1jz83XNI5Wyylg_Rc9R1RPYrg9xAw8bd_SgeD4vY807ewVneEztc22sTvIgSIyAnPdCPHHxlam41EolVOJXDSQxGnKoDYGb4MOffqM_ikMdIhmusBVDJDw481ZHtmr5Y51aXMZXfN3-XU1SNbvroKooWWszH8u6S8ihuHRpUTwem18G1SpgOZMbXUSH886qnRE7CQgWaasbxElKhUnM2Yahz0gmJAPhUnCkxvkDPjl8"/>
+</div>
+<div>
+<div class="font-headline font-bold">Priya Sharma</div>
+<div class="text-[10px] font-label font-bold uppercase tracking-widest text-outline">Director, Urban Safety Initiative</div>
+</div>
+</div>
+</div>
+<div class="md:w-1/2 grid grid-cols-2 gap-8">
+<div class="p-8 bg-surface-container-low rounded-3xl border border-outline-variant/10">
+<div class="text-4xl font-headline font-black text-secondary mb-2">40%</div>
+<p class="text-outline text-xs uppercase font-label font-bold tracking-widest">Reduction in reported late-night incidents</p>
+</div>
+<div class="p-8 bg-surface-container-low rounded-3xl border border-outline-variant/10">
+<div class="text-4xl font-headline font-black text-primary mb-2">150+</div>
+<p class="text-outline text-xs uppercase font-label font-bold tracking-widest">Active NGO Partnerships nationwide</p>
+</div>
+<div class="p-8 bg-surface-container-low rounded-3xl border border-outline-variant/10">
+<div class="text-4xl font-headline font-black text-on-surface mb-2">24/7</div>
+<p class="text-outline text-xs uppercase font-label font-bold tracking-widest">Continuous AI pattern monitoring</p>
+</div>
+<div class="p-8 bg-surface-container-low rounded-3xl border border-outline-variant/10">
+<div class="text-4xl font-headline font-black text-secondary mb-2">12k</div>
+<p class="text-outline text-xs uppercase font-label font-bold tracking-widest">Safe-havens verified by local communities</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Final CTA -->
+<section class="container mx-auto px-6 py-32">
+<div class="noir-gradient-primary rounded-[3rem] p-12 md:p-24 text-center space-y-8 relative overflow-hidden shadow-2xl shadow-primary-container/20">
+<div class="absolute inset-0 opacity-20" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCWxm6bbInrYONQJmt665IOVJQiyEtHhlHzjnkdolLww9DteMFU709vHOOXPuwFgyJMV61UFswE2sTNsNHL3BdKyMgdKeJKIv7AWR7Gp2HWV4jZ_XHCQPLM9sfidJMgaisXpePUrmc7VGTIwqx-6FdQwJsyqdSYgjpy6-TNF23uhJMGS07Mbl3yk47_5mD2sVdvFySwSI4BN_Ipi4ZeAL1LS_8iupcjJ1L38DQHPT0K-Yk71K0caZaWkfxVRxX-qFwaQjaNzk7TzTA');"></div>
+<h2 class="text-4xl md:text-6xl font-headline font-black tracking-tighter text-on-primary-fixed leading-tight relative z-10">
+                    Start Exploring <br/>Safer Routes Today
+                </h2>
+<p class="text-on-primary-fixed/80 max-w-xl mx-auto text-lg relative z-10">
+                    Join thousands of citizens using predictive intelligence to navigate the modern city landscape.
+                </p>
+<div class="pt-6 relative z-10">
+<a href="{% url 'register' %}"
+   class="bg-surface-dim px-12 py-5 rounded-2xl text-on-surface font-headline font-extrabold text-xl shadow-2xl hover:bg-black transition-all active:scale-95">Deploy Sentinel Now</a>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-surface-container-lowest py-20 border-t border-outline-variant/10">
+<div class="container mx-auto px-6">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-16">
+<div class="space-y-6">
+<a class="text-2xl font-black text-indigo-600 dark:text-[#c3c0ff] tracking-tighter font-headline flex items-center gap-2" href="#">
+<span class="material-symbols-outlined text-3xl" data-icon="shield">shield</span>
+                        SafeCity
+                    </a>
+<p class="text-outline text-sm leading-relaxed">
+                        The definitive urban safety intelligence platform for the modern Indian metropolis. Protecting cities through data.
+                    </p>
+<div class="flex gap-4">
+<a class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center hover:text-primary transition-colors" href="#"><span class="material-symbols-outlined" data-icon="share">share</span></a>
+<a class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center hover:text-primary transition-colors" href="#"><span class="material-symbols-outlined" data-icon="hub">hub</span></a>
+<a class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center hover:text-primary transition-colors" href="#"><span class="material-symbols-outlined" data-icon="public">public</span></a>
+</div>
+</div>
+<div>
+<h5 class="text-on-surface font-headline font-bold mb-6">Product</h5>
+<ul class="space-y-4 text-outline text-sm font-medium">
+<li><a class="hover:text-primary transition-colors" href="#">Safety Heatmaps</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Predictive Analytics</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Safe Routing</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Mobile App</a></li>
+</ul>
+</div>
+<div>
+<h5 class="text-on-surface font-headline font-bold mb-6">Company</h5>
+<ul class="space-y-4 text-outline text-sm font-medium">
+<li><a class="hover:text-primary transition-colors" href="#">About Us</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Mission</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Partnerships</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Contact</a></li>
+</ul>
+</div>
+<div>
+<h5 class="text-on-surface font-headline font-bold mb-6">Legal</h5>
+<ul class="space-y-4 text-outline text-sm font-medium">
+<li><a class="hover:text-primary transition-colors" href="#">Privacy Policy</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Terms of Service</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Data Anonymity</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Compliance</a></li>
+</ul>
+</div>
+</div>
+<div class="mt-20 pt-10 border-t border-outline-variant/10 flex flex-col md:flex-row justify-between items-center gap-6">
+<div class="text-[10px] font-label font-bold uppercase tracking-widest text-outline">
+                    © 2024 SAFECITY INTELLIGENCE SYSTEMS. ALL RIGHTS RESERVED.
+                </div>
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-secondary pulse-dot"></span>
+<span class="text-[10px] font-label font-bold uppercase tracking-widest text-secondary">System Status: All Nodes Active</span>
+</div>
+</div>
+</div>
+</footer>
+<!-- Bottom Navigation Bar (Mobile) -->
+<nav class="fixed bottom-0 w-full z-50 flex justify-around items-center px-4 pb-6 pt-3 bg-surface-container-highest/80 dark:bg-[#2d3449]/80 backdrop-blur-lg rounded-t-2xl md:hidden border-t border-white/10 dark:border-[#464555]/15 shadow-[0_-8px_24px_rgba(0,0,0,0.4)]">
+<a class="flex flex-col items-center justify-center text-cyan-400 dark:text-[#4cd7f6] bg-indigo-500/10 rounded-xl px-4 py-1 ripple-effect duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="grid_view">grid_view</span>
+<span class="font-['Manrope'] text-[10px] font-bold uppercase tracking-widest mt-1">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-[#918fa1] active:bg-white/10 ripple-effect duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="map">map</span>
+<span class="font-['Manrope'] text-[10px] font-bold uppercase tracking-widest mt-1">Map</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-[#918fa1] active:bg-white/10 ripple-effect duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="add_shield">shield</span>
+<span class="font-['Manrope'] text-[10px] font-bold uppercase tracking-widest mt-1">Report</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-[#918fa1] active:bg-white/10 ripple-effect duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="notifications_active">notifications_active</span>
+<span class="font-['Manrope'] text-[10px] font-bold uppercase tracking-widest mt-1">Alerts</span>
+</a>
+</nav>
+</body></html>
